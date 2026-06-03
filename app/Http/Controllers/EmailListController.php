@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EmailList;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +16,20 @@ class EmailListController extends Controller
      */
     public function index()
     {
+        $search = request()->search;
+
+        $emailLists = EmailList::query()
+            ->when(
+                $search,
+                fn(Builder $query) => $query->where('title', 'like', "%$search%")
+                    ->orWhere('id', '=', $search)
+            )
+            ->paginate(5)
+            ->appends(compact('search'));
+
         return view('email-list.index', [
-            'emailLists' => EmailList::query()->paginate(),
+            'emailLists' => $emailLists,
+            'search' => $search,
         ]);
     }
 
@@ -35,7 +48,7 @@ class EmailListController extends Controller
     {
         $request->validate([
             'title' => ['required', 'max:255'],
-            'file' => ['required', 'file', 'mimes:csv'],
+            'file' => ['required', 'file', 'extensions:csv'],
         ]);
 
         $emails = $this->getEmailsFromCsvFile($request->file('file'));
@@ -54,7 +67,7 @@ class EmailListController extends Controller
         $fileHandle = fopen($file->getRealPath(), 'r');
         $items = [];
 
-        while (($row = fgetcsv($fileHandle, null, ',')) !== false) {
+        while (($row = fgetcsv($fileHandle, null, ';')) !== false) {
             if ($row[0] == 'Name' && $row[1] == 'Email') {
                 continue;
             }

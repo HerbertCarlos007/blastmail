@@ -6,7 +6,7 @@
     </x-slot>
 
     <x-card>
-        <x-form :action="route('email-list.store')" post enctype="multipart/form-data">
+        <x-form :action="route('email-list.create')" post enctype="multipart/form-data">
 
 
             <div>

@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subscriber', function (Blueprint $table) {
+        Schema::create('subscribers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('email_list_id')->constrained();
             $table->string('name');
             $table->string('email');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

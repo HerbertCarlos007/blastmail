@@ -11,7 +11,8 @@
                 {{__('Create a new template')}}
             </x-button.link>
 
-            <x-form :action="route('template.index')" class="w-3/5 flex space-x-4 items-center" flat x-data x-ref="form">
+            <x-form :action="route('template.index')" class="w-3/5 flex space-x-4 items-center" flat x-data
+                    x-ref="form">
 
                 <x-input.checkbox value="1" name="withTrashed" :label="__('Show Deleted records')"
                                   @click="$refs.form.submit()" :checked="$withTrashed"/>
@@ -35,22 +36,26 @@
             <x-slot name="body">
                 @foreach($templates as $template)
                     <tr>
-                        <x-table.td>{{$template->id}}</x-table.td>
+                        <x-table.td class="w-1">{{$template->id}}</x-table.td>
                         <x-table.td>{{$template->name}}</x-table.td>
-                        <x-table.td class="flex items-center space-x-4">
+                        <x-table.td class="w-1">
+                            <div class="flex items-center space-x-4">
+                                <x-button.link secondary
+                                               :href="route('template.show', $template)">{{__('Preview')}}</x-button.link>
+                                <x-button.link secondary
+                                               :href="route('template.edit', $template)">{{__('Edit')}}</x-button.link>
 
-                            <x-button.link secondary :href="route('template.edit', $template)">Edit</x-button.link>
+                                @unless($template->trashed())
+                                    <x-form
+                                        :action="route('template.destroy', $template)"
+                                        delete flat onsubmit="return confirm('{{__('Are you sure?')}}')">
+                                        <x-button.secondary type="submit">{{__('Delete')}}</x-button.secondary>
+                                    </x-form>
+                                @else
+                                    <x-badge danger>{{__('Deleted')}}</x-badge>
 
-                            @unless($template->trashed())
-                                <x-form
-                                    :action="route('template.destroy', $template)"
-                                    delete flat onsubmit="return confirm('{{__('Are you sure?')}}')">
-                                    <x-button.secondary type="submit">{{__('Delete')}}</x-button.secondary>
-                                </x-form>
-                            @else
-                                <x-badge danger>{{__('Deleted')}}</x-badge>
-
-                            @endunless
+                                @endunless
+                            </div>
                         </x-table.td>
                     </tr>
                 @endforeach
